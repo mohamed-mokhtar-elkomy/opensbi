@@ -522,6 +522,9 @@ compile_ar = $(CMD_PREFIX)mkdir -p `dirname $(1)`; \
 compile_objcopy = $(CMD_PREFIX)mkdir -p `dirname $(1)`; \
 	     echo " OBJCOPY   $(subst $(build_dir)/,,$(1))"; \
 	     $(OBJCOPY) -S -O binary $(2) $(1)
+compile_objdump = $(CMD_PREFIX)mkdir -p `dirname $(1)`; \
+	     echo " OBJDUMP   $(subst $(build_dir)/,,$(1))"; \
+	     $(CROSS_COMPILE)objdump -D -S $(2) > $(1)
 compile_dts = $(CMD_PREFIX)mkdir -p `dirname $(1)`; \
 	     echo " DTC       $(subst $(build_dir)/,,$(1))"; \
 	     $(CPP) $(DTSCPPFLAGS) $(2) | $(DTC) -O dtb -i `dirname $(2)` -o $(1)
@@ -620,6 +623,7 @@ $(platform_build_dir)/%.dtb: $(platform_src_dir)/%.dts
 # Rules for lib/utils and firmware sources
 $(platform_build_dir)/%.bin: $(platform_build_dir)/%.elf
 	$(call compile_objcopy,$@,$<)
+	$(call compile_objdump,$(@:.bin=.asm),$<)
 
 $(platform_build_dir)/%.elf: $(platform_build_dir)/%.o $(platform_build_dir)/%.elf.ld $(platform_build_dir)/lib/libplatsbi.a
 	$(call compile_elf,$@,$@.ld,$< $(platform_build_dir)/lib/libplatsbi.a)
